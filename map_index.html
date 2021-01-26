@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title></title>
+    <meta name="robots" content="noindex, nofollow" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v2.0.1/mapbox-gl.js"></script>
+    <link
+      href="https://api.tiles.mapbox.com/mapbox-gl-js/v2.0.1/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      h2,
+      h3 {
+        margin: 10px;
+        font-size: 1.2em;
+      }
+      h3 {
+        font-size: 1em;
+      }
+      p {
+        font-size: 0.85em;
+        margin: 10px;
+        text-align: left;
+      }
+      .map-overlay {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.8);
+        margin-right: 20px;
+        font-family: Merriweather, serif;
+        overflow: auto;
+        border-radius: 3px;
+      }
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+      #features {
+        top: 0;
+        height: 150px;
+        margin-top: 20px;
+        width: 500px;
+      }
+      #legend {
+    padding: 10px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    line-height: 18px;
+    height: 150px;
+    margin-bottom: 40px;
+    width: 250px;
+  }
+
+  .legend-key {
+    display: inline-block;
+    border-radius: 20%;
+    width: 10px;
+    height: 10px;
+    margin-right: 5px;
+  }
+
+  .mapboxgl-popup {
+  max-width: 400px;
+  font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  }
+    </style>
+  </head>
+  <body>
+
+
+
+    <div id="map"></div>
+    <div class="map-overlay" id="features">
+      <h1>PA-X Local: Agreement Details</h1>
+      <div id="pd"><p>Click on points or zoom in to see details </p></div>
+      <div id="pd"><p>When zoomed in, turn off features using buttons in top-left corner </p></div>
+    </div>
+    <div class="map-overlay" id="legend"></div>
+
+    <style>
+    #menu {
+      background: #fff;
+    position: relative;
+    z-index: 1;
+    top: 10px;
+    right: 10px;
+    border-radius: 3px;
+    width: 120px;
+    border: 1px solid rgba(0, 0, 0, 0.4);
+    font-family: 'Merriweather', serif;
+    }
+
+    #menu a {
+    font-size: 13px;
+    color: #404040;
+    display: block;
+    margin: 0;
+    padding: 0;
+    padding: 10px;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+    text-align: center;
+    }
+
+    #menu a:last-child {
+    border: none;
+    }
+
+    #menu a:hover {
+    background-color: #f8f8f8;
+    color: #404040;
+    }
+
+    #menu a.active {
+    background-color: #3887be;
+    color: #ffffff;
+    }
+
+    #menu a.active:hover {
+    background: #3074a4;
+    }
+    </style>
+
+    <nav id="menu"></nav>
+
+    <script>
+      // define access token
+      mapboxgl.accessToken = 'pk.eyJ1IjoibWFsYXNhbmphIiwiYSI6ImNrOXdqdGh6dDA2ZGwza3B4ODh2YXMyaTUifQ.6aoZdcZz74J7dqvSBBNaHA';
+
+      //create map
+      var map = new mapboxgl.Map({
+        container: 'map', // container id
+        style: 'mapbox://styles/malasanja/ckkcno6xm24db17mz4zha158s' // map style URL from Mapbox Studio
+      });
+
+map.on('load', function() {
+      var layers = ['Implementation', 'Ceasefire', 'Prenegotiation', 'Substantive - comprehensive', 'Substantive - partial', 'Renewal', 'Other'];
+      var colors = ['#f60909', '#e9a158', '#b4e9e6', '#dd5ab4', '#600653', '#5cf844', '#695454'];
+      for (i = 0; i < layers.length; i++) {
+        var layer = layers[i];
+        var color = colors[i];
+        var item = document.createElement('div');
+        var key = document.createElement('span');
+        key.className = 'legend-key';
+        key.style.backgroundColor = color;
+
+        var value = document.createElement('span');
+        value.innerHTML = layer;
+        item.appendChild(key);
+        item.appendChild(value);
+        legend.appendChild(item);
+      }
+
+    });
+
+
+
+
+    // When a click event occurs on a feature in the places layer, open a popup at the
+    // location of the feature, with description HTML from its properties.
+    map.on('click', function(e) {
+         var features = map.queryRenderedFeatures(e.point, {
+             layers: ['local'] // replace this with the name of the layer
+         });
+
+         if (!features.length) {
+             return;
+         }
+
+         var feature = features[0];
+
+         var popup = new mapboxgl.Popup({ offset: [0, -15] })
+             .setLngLat(feature.geometry.coordinates)
+             .setHTML('<h3>' + feature.properties.Agt + '</h3><p>' + feature.properties.Dat + '</p>') // CHANGE THIS TO REFLECT THE PROPERTIES YOU WANT TO SHOW
+             .setLngLat(feature.geometry.coordinates)
+             .addTo(map);
+     });
+
+    // Change the cursor to a pointer when the mouse is over the places layer.
+    map.on('mouseenter', 'stage', function () {
+    map.getCanvas().style.cursor = 'pointer';
+    });
+
+    // Change it back to a pointer when it leaves.
+    map.on('mouseleave', 'stage', function () {
+    map.getCanvas().style.cursor = '';
+    });
+
+    var toggleableLayerIds = [ 'agt', 'date' ];
+
+    var link = document.createElement('a');
+    link.href = '#';
+    link.className = 'active';
+    link.textContent = "toggle layers";
+    link.onclick = function (e) {
+        for(var index in toggleableLayerIds) {
+          var clickedLayer = toggleableLayerIds[index];
+          e.preventDefault();
+          e.stopPropagation();
+
+          var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+
+          if (visibility === 'visible') {
+              map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+              this.className = '';
+          } else {
+              this.className = 'active';
+              map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+          }
+        }
+
+    };
+    var layers = document.getElementById('menu');
+    layers.appendChild(link);
+
+    </script>
+  </body>
+</html>
