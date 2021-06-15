@@ -171,7 +171,7 @@ map.on('load', function() {
     // location of the feature, with description HTML from its properties.
     map.on('click', function(e) {
          var features = map.queryRenderedFeatures(e.point, {
-             layers: ['local'] // replace this with the name of the layer
+             layers: ['stage'] // replace this with the name of the layer
          });
 
          if (!features.length) {
